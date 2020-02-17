@@ -6,6 +6,8 @@ use Yii;
 use common\models\Post;
 use yii\web\Controller;
 use yii\filters\AccessControl;
+use common\components\AccessRule;
+use common\models\User;
 
 class PostController extends Controller
 {
@@ -15,14 +17,46 @@ class PostController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'ruleConfig' => [
+                    'class' => AccessRule::className(),
+                ],
+                'only' => ['index','create', 'update', 'delete','read'],
                 'rules' => [
                     [
+                        'actions' => ['index','read'],
                         'allow' => true,
-                        'actions' => ['index', 'create','update','delete','read'],
-                        'roles' => ['@'],
+                        'roles' => [
+                           '@'
+                        ],
                     ],
-
-                ],
+                    [
+                        'actions' => ['create'],
+                        'allow' => true,
+                        // Allow users, moderators and admins to create
+                        'roles' => [
+                            User::ROLE_USER,
+                            User::ROLE_MODERATOR,
+                            User::ROLE_ADMIN
+                        ],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        // Allow moderators and admins to update
+                        'roles' => [
+                            User::ROLE_MODERATOR,
+                            User::ROLE_ADMIN
+                        ],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        // Allow admins to delete
+                        'roles' => [
+                            User::ROLE_ADMIN
+                        ],
+                    ],
+                ]
             ],
         ];
     }
