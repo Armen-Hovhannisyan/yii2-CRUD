@@ -5,26 +5,27 @@ namespace frontend\controllers;
 use Yii;
 use common\models\Post;
 use yii\web\Controller;
-use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
-use yii\base\Module;
 
 class PostController extends Controller
 {
-    public $author_id ;
 
-    function __construct($id, Module $module, array $config = [])
+    public function behaviors()
     {
-        parent::__construct($id, $module, $config);
-        $isGuest = Yii::$app->user->isGuest;
-        if ($isGuest) {
-            return Yii::$app->response->redirect(array('site/login'));
-        }
-        $this->author_id = Yii::$app->user->id;
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'create','update','delete','read'],
+                        'roles' => ['@'],
+                    ],
 
+                ],
+            ],
+        ];
     }
-
-
     /**
      * Displays post page.
      *
@@ -33,9 +34,9 @@ class PostController extends Controller
 
     public function actionIndex()
     {
-
+        $author_id = Yii::$app->user->id;
         $post = new Post();
-        $data = $post->findByAuthorId($this->author_id);
+        $data = $post->findByAuthorId($author_id);
         return $this->render('index', array(
             'data' => $data, 'title' => 'Posts'
         ));
@@ -48,9 +49,10 @@ class PostController extends Controller
      */
     public function actionCreate()
     {
+        $author_id = Yii::$app->user->id;
         $model = new Post;
         if (isset($_POST['Post'])) {
-            $model->author_id = $this->author_id;
+            $model->author_id = $author_id;
             $model->title = $_POST['Post']['title'];
             $model->content = $_POST['Post']['content'];
 
