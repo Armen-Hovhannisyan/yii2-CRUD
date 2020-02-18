@@ -4,7 +4,11 @@ use yii\bootstrap\ActiveForm;
 $this->title = (isset($title)?$title:'');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-
+<?php if(Yii::$app->session->hasFlash('missing_permission')): ?>
+    <div class="alert  alert-danger">
+        You are not allowed to perform this action!
+    </div>
+<?php endif; ?>
 <?php echo Html::a('Create New Post', array('post/create'), array('class' => 'btn btn-primary pull-right')); ?>
 <div class="clearfix"></div>
 <hr />
@@ -33,10 +37,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php endforeach; ?>
 </table>
 <?php if(Yii::$app->session->hasFlash('PostDeletedError')): ?>
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
         There was an error deleting your post!
     </div>
 <?php endif; ?>
+
 
 <?php if(Yii::$app->session->hasFlash('PostDeleted')): ?>
     <div class="alert alert-success">

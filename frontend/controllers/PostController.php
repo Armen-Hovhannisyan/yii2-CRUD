@@ -8,6 +8,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use common\components\AccessRule;
 use common\models\User;
+use yii\filters\VerbFilter;
 
 class PostController extends Controller
 {
@@ -20,15 +21,14 @@ class PostController extends Controller
                 'ruleConfig' => [
                     'class' => AccessRule::className(),
                 ],
-                'only' => ['index','create', 'update', 'delete','read'],
+                'only' => ['index', 'create', 'update', 'delete', 'read'],
                 'rules' => [
                     [
-                        'actions' => ['index','read'],
+                        'actions' => ['index', 'read'],
                         'allow' => true,
-                        'roles' => [
-                           '@'
-                        ],
+                        'roles' => ['@'],
                     ],
+
                     [
                         'actions' => ['create'],
                         'allow' => true,
@@ -55,11 +55,27 @@ class PostController extends Controller
                         'roles' => [
                             User::ROLE_ADMIN
                         ],
+
                     ],
-                ]
+
+                ],
+                'denyCallback' => function ($rule, $action) {
+                    if(Yii::$app->user->isGuest){
+                      return $this->redirect(['site/login']);
+                    }else{
+                        Yii::$app->session->setFlash('missing_permission');
+                        return $action->controller->redirect('index');
+                    }
+
+
+
+                },
+
             ],
+
         ];
     }
+
     /**
      * Displays post page.
      *
